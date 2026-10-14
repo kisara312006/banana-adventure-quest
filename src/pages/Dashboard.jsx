@@ -21,7 +21,7 @@ export default function Dashboard() {
       <div className="card profile-strip">
         <div className="avatar">{profile.avatar}</div>
         <div>
-          <h1>Hi, {profile.displayName}!</h1>
+          <h1>Hi bn, {profile.displayName}!</h1>
           <p>⭐ Total score <b>{profile.totalScore}</b> · 🏁 Levels done {profile.completedLevels.length}/5 · 🎖 Rewards {profile.achievements.length}</p>
           <div className="bar"><div style={{ width: `${pct}%` }} /></div>
           <p className="muted">Every level gives you a fresh set of lives (2-3) each attempt.</p>
