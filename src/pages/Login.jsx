@@ -21,7 +21,7 @@ export default function Login() {
 
   return (
     <section className="card auth">
-      <h1>Welcome back bn 🍌</h1>
+      <h1>Welcome back 🍌</h1>
       <label>Email<input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
       <label>Password<input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()} /></label>
       {error && <p className="msg error">{error}</p>}
