@@ -1,0 +1,109 @@
+rules_version = '2';
+// Banana Adventure Quest - Firestore Security Rules
+// AI-assisted (Claude). Study and test these before submitting.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function userDoc(uid) { return get(/databases/$(database)/documents/users/$(uid)).data; }
+    // getAfter() = the user document as it will be AFTER this write/batch/transaction.
+    function userAfter(uid) { return getAfter(/databases/$(database)/documents/users/$(uid)).data; }
+    function validName(n) { return n is string && n.size() >= 2 && n.size() <= 20; }
+    function validAvatar(a) { return a is string && a.size() >= 1 && a.size() <= 8; }
+
+    // ---------- Private player document ----------
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+
+      // Profile is created once, with safe starting values only.
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName','email','avatar','createdAt','totalScore','bestRun','gamesPlayed','hintsUsed','unlockedLevel','completedLevels','achievements'])
+        && request.resource.data.keys().hasAll(['displayName','email','avatar','createdAt','totalScore','bestRun','gamesPlayed','hintsUsed','unlockedLevel','completedLevels','achievements'])
+        && validName(request.resource.data.displayName)
+        && validAvatar(request.resource.data.avatar)
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.totalScore == 0
+        && request.resource.data.bestRun == 0
+        && request.resource.data.gamesPlayed == 0
+        && request.resource.data.hintsUsed == 0
+        && request.resource.data.unlockedLevel == 1
+        && request.resource.data.completedLevels == []
+        && request.resource.data.achievements == [];
+
+      // Updates: only known fields, and protected numbers may only move in small, sane steps.
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','avatar','totalScore','bestRun','gamesPlayed','hintsUsed','unlockedLevel','completedLevels','achievements'])
+        && validName(request.resource.data.displayName)
+        && validAvatar(request.resource.data.avatar)
+        && request.resource.data.totalScore is int
+        && request.resource.data.totalScore >= resource.data.totalScore
+        && request.resource.data.totalScore <= resource.data.totalScore + 1000
+        && request.resource.data.totalScore <= 5000
+        && request.resource.data.bestRun is int
+        && request.resource.data.bestRun >= resource.data.bestRun
+        && request.resource.data.bestRun <= 1000
+        && request.resource.data.gamesPlayed >= resource.data.gamesPlayed
+        && request.resource.data.gamesPlayed <= resource.data.gamesPlayed + 1
+        && request.resource.data.hintsUsed >= resource.data.hintsUsed
+        && request.resource.data.hintsUsed <= resource.data.hintsUsed + 5
+        && request.resource.data.unlockedLevel >= resource.data.unlockedLevel
+        && request.resource.data.unlockedLevel <= resource.data.unlockedLevel + 1
+        && request.resource.data.unlockedLevel <= 5
+        && request.resource.data.completedLevels.size() <= 5
+        && request.resource.data.completedLevels.size() <= resource.data.completedLevels.size() + 1
+        && request.resource.data.achievements.size() <= 20
+        && request.resource.data.achievements.size() <= resource.data.achievements.size() + 5;
+      // No delete rule => deleting a profile is denied.
+
+      // ---------- Per-level progress ----------
+      match /progress/{levelId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && levelId in ['1','2','3','4','5']
+          && request.resource.data.keys().hasOnly(['bestScore','bestTimeLeft','timesCompleted','hintsUsed','updatedAt'])
+          && request.resource.data.keys().hasAll(['bestScore','bestTimeLeft','timesCompleted','hintsUsed','updatedAt'])
+          && request.resource.data.bestScore is int
+          && request.resource.data.bestScore >= 0 && request.resource.data.bestScore <= 1000
+          && request.resource.data.bestScore >= (resource == null ? 0 : resource.data.bestScore)
+          && request.resource.data.bestTimeLeft is int && request.resource.data.bestTimeLeft >= 0
+          && request.resource.data.timesCompleted is int && request.resource.data.hintsUsed is int
+          && int(levelId) <= userDoc(uid).unlockedLevel   // must already be unlocked
+          && request.resource.data.updatedAt == request.time;
+      }
+
+      // ---------- Game session history (append-only) ----------
+      match /gameSessions/{sessionId} {
+        allow read: if isOwner(uid);
+        allow create: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['levelId','result','score','hintsUsed','timeLeft','livesLeft','createdAt'])
+          && request.resource.data.keys().hasAll(['levelId','result','score','hintsUsed','timeLeft','livesLeft','createdAt'])
+          && request.resource.data.levelId in [1,2,3,4,5]
+          && request.resource.data.levelId <= userDoc(uid).unlockedLevel
+          && request.resource.data.result in ['won','lost']
+          && request.resource.data.score is int
+          && request.resource.data.score >= 0 && request.resource.data.score <= 1000
+          && request.resource.data.hintsUsed is int && request.resource.data.hintsUsed >= 0 && request.resource.data.hintsUsed <= 5
+          && request.resource.data.timeLeft is int && request.resource.data.timeLeft >= 0
+          && request.resource.data.livesLeft is int && request.resource.data.livesLeft >= 0
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+
+    // ---------- Public leaderboard (no email, no private data) ----------
+    match /leaderboard/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName','avatar','totalScore','levelsCompleted','updatedAt'])
+        && request.resource.data.keys().hasAll(['displayName','avatar','totalScore','levelsCompleted','updatedAt'])
+        && request.resource.data.totalScore == userAfter(uid).totalScore
+        && request.resource.data.displayName == userAfter(uid).displayName
+        && request.resource.data.avatar == userAfter(uid).avatar
+        && request.resource.data.levelsCompleted == userAfter(uid).completedLevels.size()
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+  }
+}

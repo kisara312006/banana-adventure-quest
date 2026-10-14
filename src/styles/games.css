@@ -1,0 +1,19 @@
+.hud { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+.hud-item { background: rgba(0,0,0,.5); border: 1px solid var(--gold); border-radius: 14px; padding: 6px 14px; font-weight: 600; }
+.timer { font-size: 1.4rem; color: var(--banana); }
+.timer.low { color: var(--danger); border-color: var(--danger); animation: pulse .8s infinite; }
+.puzzle-img { max-width: 100%; border-radius: 14px; border: 3px solid var(--gold); background: #fff; margin: 10px 0; }
+.digit { width: 90px; text-align: center; font-size: 1.6rem; }
+.memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 420px; margin: 10px auto; }
+.mem-card { aspect-ratio: 1; font-size: clamp(1.6rem, 7vw, 2.6rem); border-radius: 16px; cursor: pointer; border: 2px solid var(--gold); color: var(--text);
+  background: linear-gradient(160deg, #135a42, var(--dark)); transition: transform .2s; }
+.mem-card.up { background: linear-gradient(160deg, #fff3a8, var(--banana)); transform: rotateY(0) scale(1.03); }
+.glow { box-shadow: 0 0 18px 4px var(--banana); }
+.sequence { display: flex; flex-wrap: wrap; gap: 8px; font-size: clamp(1.6rem, 7vw, 2.4rem); justify-content: center; margin: 14px 0; }
+.sequence .q { color: var(--banana); }
+.fruit-btn { font-size: 2rem; padding: 8px 18px; }
+.sort-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 360px; margin: 12px auto; }
+.sort-card { aspect-ratio: 1; font-size: 2.6rem; border-radius: 16px; cursor: pointer; border: 2px solid var(--gold); background: var(--dark); }
+.sort-card.picked { background: linear-gradient(160deg, #fff3a8, var(--banana)); transform: scale(1.05); }
+.rule { text-align: center; }
+.result h2 { margin-top: 0; }
