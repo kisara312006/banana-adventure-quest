@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { friendlyAuthError, registerUser } from '../services/authService';
+import { friendlyAuthError, loginWithGoogle, registerUser } from '../services/authService';
+import GoogleIcon from '../components/GoogleIcon';
 
 export default function Register() {
   const [f, setF] = useState({ name: '', email: '', password: '', confirm: '' });
@@ -24,6 +25,14 @@ export default function Register() {
     catch (e) { setError(friendlyAuthError(e)); setBusy(false); }
   };
 
+  // Event: "Continue with Google" button click.
+  const google = async () => {
+    if (busy) return;
+    setError(''); setBusy(true);
+    try { await loginWithGoogle(); navigate('/dashboard'); }
+    catch (e) { setError(friendlyAuthError(e)); setBusy(false); }
+  };
+
   return (
     <section className="card auth">
       <h1>Join the quest 🍎</h1>
@@ -32,7 +41,10 @@ export default function Register() {
       <label>Password<input className="input" type="password" value={f.password} onChange={set('password')} /></label>
       <label>Confirm password<input className="input" type="password" value={f.confirm} onChange={set('confirm')} onKeyDown={(e) => e.key === 'Enter' && submit()} /></label>
       {error && <p className="msg error">{error}</p>}
-      <button className="btn big" disabled={busy} onClick={submit}>{busy ? 'Creating account…' : 'Register'}</button>
+      <div className="auth-actions">
+        <button className="btn big" disabled={busy} onClick={submit}>{busy ? 'Creating account…' : 'Register'}</button>
+        <button className="btn big ghost" disabled={busy} onClick={google}><GoogleIcon />Continue with Google</button>
+      </div>
       <p className="muted">Already registered? <Link to="/login">Login</Link></p>
     </section>
   );
