@@ -20,7 +20,7 @@ export default function Leaderboard() {
           <thead><tr><th>#</th><th>Player</th><th>Levels</th><th>Score</th></tr></thead>
           <tbody>{rows.map((r, i) => (
             <tr key={r.id} className={r.id === user?.uid ? 'me' : ''}>
-              <td>{i + 1}</td><td>{r.avatar} {r.displayName}</td><td>{r.levelsCompleted}/5</td><td>{r.totalScore}</td>
+              <td>{['🥇', '🥈', '🥉'][i] ?? i + 1}</td><td>{r.avatar} {r.displayName}</td><td>{r.levelsCompleted}/5</td><td>{r.totalScore}</td>
             </tr>))}</tbody>
         </table>
       )}
