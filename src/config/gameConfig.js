@@ -35,8 +35,8 @@ export const LEVELS = {
   2: {
     id: 2, name: 'Apple Forest', emoji: '🍎', theme: 'forest', seconds: 120, lives: 3, maxHints: 4,
     description: 'Flip cards and match the fruit pairs.',
-    rules: ['Flip two cards at a time and find all 6 matching pairs.', 'Each match = 60 points.', 'A wrong pair costs 5 seconds (no life lost).', 'Timer: 2:00.'],
-    stages: [{ game: 'memory', pairs: 6, points: 60, penaltySeconds: 5 }],
+    rules: ['Flip two cards at a time and find all 6 matching pairs.', 'Each match = 60 points.', 'A wrong pair costs 3 seconds (no life lost).', 'Timer: 2:00.'],
+    stages: [{ game: 'memory', pairs: 6, points: 60, penaltySeconds: 3 }],
   },
   3: {
     id: 3, name: 'Orange River', emoji: '🍊', theme: 'river', seconds: 90, lives: 2, maxHints: 2,
