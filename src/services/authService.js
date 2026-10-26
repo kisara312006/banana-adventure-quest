@@ -1,5 +1,5 @@
 // Firebase Authentication helpers (identity only - profile data lives in Firestore).
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 
 // Name typed on the register form; AuthProvider uses it when it creates the profile document.
@@ -13,6 +13,7 @@ export async function registerUser(displayName, email, password) {
 }
 export const loginUser = (email, password) => signInWithEmailAndPassword(auth, email, password);
 export const logoutUser = () => signOut(auth);
+export const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
 // Opens the Google popup. New players get an account; returning players are signed in.
 export async function loginWithGoogle() {
