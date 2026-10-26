@@ -8,7 +8,7 @@
 //   -> JSON { "question": "<image URL>", "solution": <digit 0-9> }
 // If the real documentation differs, change ONLY API_URL and fetchPuzzle() below.
 const API_URL = 'https://marcconrad.com/uob/banana/api.php';
-const TIMEOUT_MS = 8000;
+const TIMEOUT_MS = 10000;
 
 export class BananaApiError extends Error {}
 
