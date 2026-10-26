@@ -1,5 +1,7 @@
 # 🍌 Banana Adventure Quest
 
+**Live site:** https://bananaadventurequest.netlify.app
+
 React + Vite + Firebase (Authentication + Cloud Firestore) browser game for CIS046-3 Software For Enterprise.
 Four different fruit mini-games, a final treasure challenge, hints earned by solving two Banana API puzzles, timers, lives, achievements, profile and leaderboard.
 

@@ -46,3 +46,5 @@ Netlify builds the React app into static files in `dist/` and serves them; Fireb
 8. Updating: edit → test → `git add .` → `git commit -m "..."` → `git push` → Netlify auto-builds → refresh and verify.
 
 Not verified: no deployment was performed by the AI; "it works" only counts after you test the live site.
+
+Deployed on Netlify from the main branch. Environment variables set in Netlify. Netlify domain added to Firebase Authorized domains. Google sign-in enabled.
