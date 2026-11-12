@@ -1,22 +1,38 @@
-// Level 3: find the next fruit in a pattern.
+// Level 2: find the next fruit in a pattern. stage.hard = true adds tougher pattern types.
 import { useEffect, useState } from 'react';
 
 const POOL = ['🍎', '🍌', '🍊', '🍇', '🍓', '🍍', '🥝', '🍉'];
 const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
 const randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
 
-function makeRound({ choices, maxPeriod }) {
-  const period = randInt(2, maxPeriod);
-  const base = shuffle(POOL).slice(0, period);
-  const type = maxPeriod >= 3 && Math.random() < 0.5 ? 'double' : 'cycle';
-  const item = (i) => (type === 'cycle' ? base[i % period] : base[Math.floor(i / 2) % period]);
-  const shownCount = period * 2 + 1;
+function makeRound({ choices, maxPeriod, hard }) {
+  const types = hard ? ['cycle', 'double', 'interleave', 'bounce'] : maxPeriod >= 3 ? ['cycle', 'double'] : ['cycle'];
+  const type = types[randInt(0, types.length - 1)];
+  const base = shuffle(POOL);
+  let item, shownCount, rule;
+
+  if (type === 'cycle') {
+    const p = randInt(2, maxPeriod);
+    item = (i) => base[i % p]; shownCount = p * 2 + 1;
+    rule = `The same ${p} fruits repeat in the same order.`;
+  } else if (type === 'double') {
+    const p = randInt(2, maxPeriod);
+    item = (i) => base[Math.floor(i / 2) % p]; shownCount = p * 2 + 1;
+    rule = 'Each fruit appears twice in a row, then the next fruit comes.';
+  } else if (type === 'interleave') {
+    // Two patterns woven together: even positions repeat 2 fruits, odd positions repeat 3 fruits.
+    item = (i) => (i % 2 === 0 ? base[(i / 2) % 2] : base[2 + (((i - 1) / 2) % 3)]); shownCount = 9;
+    rule = 'Two patterns are mixed: look at every other fruit separately.';
+  } else {
+    // Bounce: goes forward through the fruits, then backwards, then forwards again.
+    const p = randInt(3, 4), m = 2 * (p - 1);
+    item = (i) => { const k = i % m; return base[k < p ? k : m - k]; }; shownCount = m + 3;
+    rule = 'The pattern walks forward through the fruits, then backwards.';
+  }
+
   const shown = Array.from({ length: shownCount }, (_, i) => item(i));
   const answer = item(shownCount);
   const wrong = shuffle(POOL.filter((f) => f !== answer)).slice(0, choices - 1);
-  const rule = type === 'cycle'
-    ? `The same ${period} fruits repeat in the same order.`
-    : 'Each fruit appears twice in a row, then the next fruit comes.';
   return { shown, answer, options: shuffle([answer, ...wrong]), rule };
 }
 
