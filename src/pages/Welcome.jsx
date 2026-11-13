@@ -7,7 +7,7 @@ export default function Welcome() {
     <section className="hero">
       <div className="hero-banana" aria-hidden="true">🍌</div>
       <h1>Banana Adventure Quest</h1>
-      <p className="lead">Explore four fruity jungle levels, solve puzzles, earn rewards and unlock the Final Treasure!</p>
+      <p className="lead">Play two fruity jungle levels, earn rewards and reach the Final Level in the Apple Forest!</p>
       <div className="row center-row">
         {user ? <Link className="btn big" to="/dashboard">Continue adventure</Link> : (
           <>
