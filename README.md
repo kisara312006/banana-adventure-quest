@@ -1,9 +1,7 @@
 # 🍌 Banana Adventure Quest
 
-**Live site:** https://bananaadventurequest.netlify.app
-
 React + Vite + Firebase (Authentication + Cloud Firestore) browser game for CIS046-3 Software For Enterprise.
-Four different fruit mini-games, a final treasure challenge, hints earned by solving two Banana API puzzles, timers, lives, achievements, profile and leaderboard.
+Two fruit levels plus a final Apple Forest level, hints earned by solving two Banana API puzzles, timers, lives, achievements, profile and leaderboard.
 
 > **Honest status (read first)**
 > - This code was written by an AI (Claude) in an environment **without internet access**. It was **never installed, built, run, or deployed**, and Firebase / Netlify were never touched. Everything below is *to be verified by you*, using the test checklist in `docs/TESTING_AND_VIDEO.md`. Expect to fix small typos or version issues.
@@ -14,17 +12,15 @@ Four different fruit mini-games, a final treasure challenge, hints earned by sol
 Welcome, register/login/logout, dashboard with progress, 4 levels + final challenge, hint challenge, restart with confirmation, countdown timers, lives, scoring, achievements, profile page (edit name/avatar), leaderboard, falling-fruit background (respects reduced motion), responsive dark-green/gold/banana-yellow design.
 
 ## 2. Levels
-| Level | Game | Timer | Lives | Hints/attempt |
-|---|---|---|---|---|
-| 1 Banana Jungle | Fruit counting (5 rounds) | 3:00 | 3 | 5 |
-| 2 Apple Forest | Memory match, 6 pairs; wrong pair = −5s | 2:00 | 3 | 4 |
-| 3 Orange River | Pattern/next fruit, 4 choices, 5 rounds | 1:30 | 2 | 2 |
-| 4 Golden Fruit Temple | Sort fruits by multi-condition rules, 3 rounds | 1:00 | 2 | 1 |
-| Final Treasure | Counting ×2 → patterns ×2 → sorting ×1, one shared timer | 1:40 | 3 | 3 (my choice; not specified) |
+| Level | Game | Timer | Lives | Hints/attempt | Banana API puzzles per hint |
+|---|---|---|---|---|---|
+| 1 Banana Jungle | Odd-one-out (6 rounds) | 1:30 | 2 | 2 | 1 |
+| 2 Orange River | Hard fruit patterns (4 rounds, 5 choices, 4 pattern types) | 1:00 | 2 | 2 | 2 |
+| Final: Apple Forest | Memory match, **16 cards** (8 pairs); wrong pair = −1 life | 1:30 | 4 | 2 | 3 |
 
-Hint numbers are **per attempt** and shown in the UI ("3/5 hints left this attempt"). All numbers are in `src/config/gameConfig.js`.
+Hint numbers are **per attempt** (shown in the UI). All numbers live in `src/config/gameConfig.js` (`hintPuzzles` = Banana API puzzles needed for one hint).
 
-**Hint rules:** Hint button → pause timer → rules screen → exactly **two real Banana API puzzles** (type the missing digit) → both right = 1 hint (a `useRef` guard stops double awards) → a wrong answer shows feedback and fetches a new puzzle for that question (unlimited retries; already-solved puzzle is kept) → Cancel = no hint. If the API is down you see an error + Retry, and no hint is given. Hints are game-specific: L1 crosses out a wrong number (then says odd/even), L2 briefly reveals a pair, L3 explains the rule then crosses out wrong choices, L4 highlights a correct fruit.
+**Hint rules:** Hint button → timer pauses → rules screen → solve N real Banana API puzzles in a row (N = 1, 2 or 3 depending on the level) → a `useRef` guard stops double awards → a wrong answer shows feedback and fetches a new puzzle for that question (unlimited retries; solved puzzles are kept) → Cancel = no hint. If the API is down you see an error + Retry and no hint is given. Hint effects: L1 fades out 3 wrong cells, L2 explains the rule then crosses out wrong choices, Final shows every card face-up for 2 seconds.
 
 **Restart:** confirmation dialog → the level component is re-mounted (new key), so timer, lives, run score and hints reset and no duplicate intervals exist. Saved best scores/achievements are untouched.
 
@@ -33,10 +29,10 @@ Hint numbers are **per attempt** and shown in the UI ("3/5 hints left this attem
 ## 3. Structure (and changes from your suggested layout)
 ```
 src/  App.jsx main.jsx
-  components/ Navbar FruitRain HintModal ProtectedRoute LoadingSpinner
+  components/ Navbar FruitRain HintModal ProtectedRoute SessionGuard LoadingSpinner
   pages/ Welcome Login Register Dashboard Profile Leaderboard Level Completion
-  games/ FruitCountingGame FruitMemoryGame FruitSequenceGame FruitSortingGame
-  services/ bananaApi authService profileService progressService leaderboardService
+  games/ OddOneOutGame FruitSequenceGame FruitMemoryGame (+ FruitCountingGame, FruitSortingGame kept but unused)
+  services/ bananaApi authService sessionService noticeService profileService progressService leaderboardService
   firebase/firebase.js   hooks/useAuth.jsx useTimer.js   config/gameConfig.js   styles/global.css games.css
 firestore.rules firestore.indexes.json firebase.json netlify.toml .env.example .gitignore
 ```
@@ -65,11 +61,19 @@ Changes: one generic `Level.jsx` replaces Level1–4 (all levels share timer/liv
 users/{uid}                       profile + totals + unlockedLevel + completedLevels[] + achievements[]   (private)
 users/{uid}/progress/{levelId}    bestScore, bestTimeLeft, timesCompleted, hintsUsed                      (private)
 users/{uid}/gameSessions/{id}     one record per finished attempt (append-only)                           (private)
+sessions/{uid}                    newest sign-in time + device (single-session control)                    (private)
 leaderboard/{uid}                 displayName, avatar, totalScore, levelsCompleted (no email)            (public to signed-in users)
 ```
 Terms: a *collection* is a folder, a *document* is a record in it (ID = the player's UID), *fields* are its values, a *subcollection* is a collection inside a document. Pros: private data separated from public leaderboard, simple security rules. Cons: leaderboard fields are duplicated; no server-side aggregation.
 
 **Authentication vs Firestore:** Authentication only proves *who* the player is (email, password, UID). Firestore stores *what they did*. Creating an Auth account does **not** create a `users/{uid}` document; `ensureProfile()` in `profileService.js` does that on first sign-in. Check both places in the Console.
+
+## 5b. Tokens and session control
+- **User tokens:** Firebase Authentication gives each login a signed **ID token (JWT)** that the SDK attaches to every Firestore request and renews automatically (about hourly). `getTokenInfo()` in `authService.js` reads it; the Profile page shows sign-in time, issue/expiry time and provider, with a *Refresh token* button. `progressService.js` calls `getIdToken()` before saving a run.
+- **Remember me:** unticked = login ends when the tab closes (`browserSessionPersistence`); ticked = survives browser restarts (`browserLocalPersistence`).
+- **Idle timeout:** `components/SessionGuard.jsx` signs the player out after 15 minutes without mouse/keyboard/touch activity, with a 60-second warning. **Maximum session:** 8 hours. Numbers are in `src/config/sessionConfig.js`.
+- **One active device:** `services/sessionService.js` stores the newest sign-in time in `sessions/{uid}`. An older sign-in on another device notices (Firestore listener) and signs itself out. Rules stop an older session overwriting a newer one.
+- **Honest limits:** these checks run in the browser. A determined user could bypass them locally; true token revocation needs the Firebase Admin SDK on a server (Cloud Functions).
 
 ## 6. Security & cheating limits
 - Rules (`firestore.rules`): you can only read/write your own `users/{uid}` tree; profile creation must start at zero; only listed fields may change; score/unlock/achievement fields can only move by bounded steps (≤1000 points, ≤1 level); a level can only be written if already unlocked; sessions are append-only; the leaderboard entry must equal your own profile totals and contains no email.

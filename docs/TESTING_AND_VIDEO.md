@@ -9,8 +9,8 @@
 
 ## B. Checklist (tick each)
 Auth: [ ] register ok [ ] duplicate email message [ ] bad password message [ ] login/logout [ ] protected pages redirect.
-Levels: [ ] L1 counting game [ ] wrong answer −1 life [ ] L2 flip/match/penalty [ ] L3 pattern [ ] L4 sorting [ ] final 3 stages [ ] each level unlocks next.
-Hints: [ ] 2 Banana API puzzles per hint [ ] timer paused in modal [ ] wrong answer → new puzzle, no hint until both right [ ] API offline → error + Retry [ ] limits 5/4/2/1 enforced (button disables) [ ] hint content fits game.
+Levels: [ ] L1 odd-one-out [ ] wrong tap −1 life (2 lives) [ ] L2 hard patterns, 1:00 [ ] Final: 16 cards, wrong pair −1 life (4 lives), 1:30 [ ] each level unlocks the next.
+Hints: [ ] L1 needs 1 Banana puzzle, L2 needs 2, Final needs 3 [ ] timer paused in modal [ ] wrong answer → new puzzle, no hint until all correct [ ] API offline → error + Retry [ ] limit 2 hints per attempt (button disables) [ ] Final hint shows all cards for 2 s.
 Timer/restart: [ ] countdown, red warning ≤10s [ ] reaching 0 ends attempt [ ] restart confirm, resets timer/lives/score, no double timer.
 Data: [ ] replay doesn't double total score [ ] profile edit saves [ ] leaderboard sorted [ ] second user separate.
 Errors: [ ] offline Banana API → Retry [ ] wrong Firestore rules show friendly message.
@@ -24,3 +24,10 @@ Rules test: Firestore → Rules → *Rules Playground*: simulate an unauthentica
 4. Interoperability (2.5 min): `bananaApi.js` request/JSON/validation/failure handling, shown through the Hint challenge (Network tab); Firebase SDK calls in `progressService.js` and the Firestore Console.
 5. Virtual identity (2 min): Auth account vs `users/{uid}`, UID in paths, two accounts, rules denying cross-access (Rules Playground).
 6. (0:10) Limits: cheating cannot be fully prevented without Cloud Functions; AI-assistance disclosure.
+
+## D. Session and token tests
+[ ] Profile page shows token times and *Refresh token* changes the issued time.
+[ ] Untick *Remember me*, log in, close the browser completely, reopen: you are logged out. Tick it: still logged in.
+[ ] Temporarily set IDLE_MS to 40 s and WARN_MS to 20 s in `sessionConfig.js`: warning appears, *Stay signed in* resets it, doing nothing signs you out with a message on the Login page. Restore the numbers afterwards.
+[ ] Log in on Chrome, then log in with the same account in another browser (or private window): the first one signs itself out within seconds with a notice.
+[ ] Firestore Console shows `sessions/{uid}` with authTime and device.
