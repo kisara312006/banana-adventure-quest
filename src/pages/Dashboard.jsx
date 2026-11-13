@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LEVELS } from '../config/gameConfig';
+import { FINAL_LEVEL_ID, LEVELS } from '../config/gameConfig';
 import { loadProgress } from '../services/progressService';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -15,16 +15,17 @@ export default function Dashboard() {
     loadProgress(user.uid).then(setProgress).catch(() => setError('Could not load level progress.'));
   }, [user.uid]);
 
-  const pct = Math.round((profile.completedLevels.length / 5) * 100);
+  const total = Object.keys(LEVELS).length;
+  const pct = Math.round((profile.completedLevels.length / total) * 100);
   return (
     <section>
       <div className="card profile-strip">
         <div className="avatar">{profile.avatar}</div>
         <div>
           <h1>Hi, {profile.displayName}!</h1>
-          <p>⭐ Total score <b>{profile.totalScore}</b> · 🏁 Levels done {profile.completedLevels.length}/5 · 🎖 Rewards {profile.achievements.length}</p>
+          <p>⭐ Total score <b>{profile.totalScore}</b> · 🏁 Levels done {profile.completedLevels.length}/{total} · 🎖 Rewards {profile.achievements.length}</p>
           <div className="bar"><div style={{ width: `${pct}%` }} /></div>
-          <p className="muted">Every level gives you a fresh set of lives (2-3) each attempt.</p>
+          <p className="muted">Every level gives you a fresh set of lives (2-4) each attempt.</p>
         </div>
       </div>
       {location.state?.locked && <p className="msg error">Level {location.state.locked} is still locked - finish the previous level first.</p>}
@@ -38,7 +39,7 @@ export default function Dashboard() {
             return (
               <div key={l.id} className={`card level-card theme-${l.theme} ${open ? '' : 'locked'}`}>
                 <div className="big-emoji">{open ? l.emoji : '🔒'}</div>
-                <h3>{l.id < 5 ? `Level ${l.id}` : 'Final'}: {l.name}</h3>
+                <h3>{l.id < FINAL_LEVEL_ID ? `Level ${l.id}` : 'Final'}: {l.name}</h3>
                 <p className="muted">{l.description}</p>
                 <p>⏱ {Math.floor(l.seconds / 60)}:{String(l.seconds % 60).padStart(2, '0')} · ❤️ {l.lives} · 💡 {l.maxHints}</p>
                 {done && <p className="msg success">✔ Completed{best !== undefined ? ` · best ${best}` : ''}</p>}

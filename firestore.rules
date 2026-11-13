@@ -40,18 +40,18 @@ service cloud.firestore {
         && request.resource.data.totalScore is int
         && request.resource.data.totalScore >= resource.data.totalScore
         && request.resource.data.totalScore <= resource.data.totalScore + 1000
-        && request.resource.data.totalScore <= 5000
+        && request.resource.data.totalScore <= 3000
         && request.resource.data.bestRun is int
         && request.resource.data.bestRun >= resource.data.bestRun
         && request.resource.data.bestRun <= 1000
         && request.resource.data.gamesPlayed >= resource.data.gamesPlayed
         && request.resource.data.gamesPlayed <= resource.data.gamesPlayed + 1
         && request.resource.data.hintsUsed >= resource.data.hintsUsed
-        && request.resource.data.hintsUsed <= resource.data.hintsUsed + 5
+        && request.resource.data.hintsUsed <= resource.data.hintsUsed + 2
         && request.resource.data.unlockedLevel >= resource.data.unlockedLevel
         && request.resource.data.unlockedLevel <= resource.data.unlockedLevel + 1
-        && request.resource.data.unlockedLevel <= 5
-        && request.resource.data.completedLevels.size() <= 5
+        && request.resource.data.unlockedLevel <= 3
+        && request.resource.data.completedLevels.size() <= 3
         && request.resource.data.completedLevels.size() <= resource.data.completedLevels.size() + 1
         && request.resource.data.achievements.size() <= 20
         && request.resource.data.achievements.size() <= resource.data.achievements.size() + 5;
@@ -61,7 +61,7 @@ service cloud.firestore {
       match /progress/{levelId} {
         allow read: if isOwner(uid);
         allow create, update: if isOwner(uid)
-          && levelId in ['1','2','3','4','5']
+          && levelId in ['1','2','3']
           && request.resource.data.keys().hasOnly(['bestScore','bestTimeLeft','timesCompleted','hintsUsed','updatedAt'])
           && request.resource.data.keys().hasAll(['bestScore','bestTimeLeft','timesCompleted','hintsUsed','updatedAt'])
           && request.resource.data.bestScore is int
@@ -79,17 +79,30 @@ service cloud.firestore {
         allow create: if isOwner(uid)
           && request.resource.data.keys().hasOnly(['levelId','result','score','hintsUsed','timeLeft','livesLeft','createdAt'])
           && request.resource.data.keys().hasAll(['levelId','result','score','hintsUsed','timeLeft','livesLeft','createdAt'])
-          && request.resource.data.levelId in [1,2,3,4,5]
+          && request.resource.data.levelId in [1,2,3]
           && request.resource.data.levelId <= userDoc(uid).unlockedLevel
           && request.resource.data.result in ['won','lost']
           && request.resource.data.score is int
           && request.resource.data.score >= 0 && request.resource.data.score <= 1000
-          && request.resource.data.hintsUsed is int && request.resource.data.hintsUsed >= 0 && request.resource.data.hintsUsed <= 5
+          && request.resource.data.hintsUsed is int && request.resource.data.hintsUsed >= 0 && request.resource.data.hintsUsed <= 2
           && request.resource.data.timeLeft is int && request.resource.data.timeLeft >= 0
           && request.resource.data.livesLeft is int && request.resource.data.livesLeft >= 0
           && request.resource.data.createdAt == request.time;
         allow update, delete: if false;
       }
+    }
+
+    // ---------- Active-session record (one per player, newest sign-in wins) ----------
+    match /sessions/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['authTime','device','updatedAt'])
+        && request.resource.data.keys().hasAll(['authTime','device','updatedAt'])
+        && request.resource.data.authTime is int
+        && request.resource.data.authTime >= (resource == null ? 0 : resource.data.authTime)  // never go backwards
+        && request.resource.data.device is string && request.resource.data.device.size() <= 100
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
     }
 
     // ---------- Public leaderboard (no email, no private data) ----------

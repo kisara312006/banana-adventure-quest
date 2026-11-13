@@ -1,4 +1,4 @@
-// One page plays every level (1-4) and the final challenge (5), driven by config/gameConfig.js.
+// One page plays every level (1, 2 and the final level 3), driven by config/gameConfig.js.
 // Restarting remounts <LevelRun> (new key) so ALL state, timers and intervals reset cleanly.
 import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
@@ -8,12 +8,13 @@ import { ACHIEVEMENTS, FINAL_LEVEL_ID, LEVELS, MAX_LEVEL_SCORE, SCORING } from '
 import { recordRun } from '../services/progressService';
 import { friendlyAuthError } from '../services/authService';
 import HintModal from '../components/HintModal';
+import OddOneOutGame from '../games/OddOneOutGame';
 import FruitCountingGame from '../games/FruitCountingGame';
 import FruitMemoryGame from '../games/FruitMemoryGame';
 import FruitSequenceGame from '../games/FruitSequenceGame';
 import FruitSortingGame from '../games/FruitSortingGame';
 
-const GAMES = { counting: FruitCountingGame, memory: FruitMemoryGame, sequence: FruitSequenceGame, sorting: FruitSortingGame };
+const GAMES = { oddone: OddOneOutGame, counting: FruitCountingGame, memory: FruitMemoryGame, sequence: FruitSequenceGame, sorting: FruitSortingGame };
 const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
 export default function Level() {
@@ -107,7 +108,7 @@ function LevelRun({ level, onRestart }) {
 
   return (
     <section className={`level theme-${level.theme}`}>
-      <h1>{level.emoji} Level {level.id < 5 ? level.id : '★'} — {level.name}</h1>
+      <h1>{level.emoji} {level.id === FINAL_LEVEL_ID ? 'Final Level' : `Level ${level.id}`} — {level.name}</h1>
       <div className="hud">
         <div className={`hud-item timer ${timeLeft <= 10 ? 'low' : ''}`}>⏱ {fmt(timeLeft)}</div>
         <div className="hud-item">{'❤️'.repeat(lives)}{'🖤'.repeat(Math.max(0, level.lives - lives))}</div>
@@ -125,7 +126,7 @@ function LevelRun({ level, onRestart }) {
         <div className="card">
           <h2>{level.description}</h2>
           <ul>{level.rules.map((r) => <li key={r}>{r}</li>)}</ul>
-          <p className="muted">Hints: earn each one by solving 2 real Banana API puzzles (max {level.maxHints} per attempt). Restart = fresh attempt, run score resets, saved best scores stay.</p>
+          <p className="muted">Hints: earn each one by solving {level.hintPuzzles ?? 2} real Banana API puzzle{(level.hintPuzzles ?? 2) > 1 ? 's' : ''} (max {level.maxHints} per attempt). Restart = fresh attempt, run score resets, saved best scores stay.</p>
           <button className="btn big" onClick={() => setStarted(true)}>Start!</button>
         </div>
       )}
@@ -135,7 +136,7 @@ function LevelRun({ level, onRestart }) {
           onCorrect={() => addScore(stage.points)} onWrong={loseLife} onPenalty={subtract} onDone={stageDone} />
       )}
 
-      {modal === 'hint' && <HintModal onEarned={hintEarned} onClose={() => setModal(null)} />}
+      {modal === 'hint' && <HintModal puzzles={level.hintPuzzles ?? 2} onEarned={hintEarned} onClose={() => setModal(null)} />}
       {modal === 'restart' && (
         <div className="modal-back"><div className="modal card">
           <h2>Restart this level?</h2>
@@ -166,7 +167,7 @@ function LevelRun({ level, onRestart }) {
             </>
           )}
           <div className="row wrap">
-            {status === 'won' && <button className="btn" disabled={!save.result} onClick={() => navigate(nextPath)}>{level.id === FINAL_LEVEL_ID ? 'See completion screen' : level.id === 4 ? 'Final Treasure Challenge ➜' : 'Next level ➜'}</button>}
+            {status === 'won' && <button className="btn" disabled={!save.result} onClick={() => navigate(nextPath)}>{level.id === FINAL_LEVEL_ID ? 'See completion screen' : level.id + 1 === FINAL_LEVEL_ID ? 'Final level ➜' : 'Next level ➜'}</button>}
             <button className="btn ghost" onClick={onRestart}>{status === 'won' ? 'Replay' : 'Try again'}</button>
             <Link className="btn ghost" to="/dashboard">Dashboard</Link>
           </div>
