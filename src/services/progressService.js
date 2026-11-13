@@ -1,6 +1,6 @@
 // Saves finished runs:  users/{uid}/progress/{levelId}, users/{uid}/gameSessions/{id}, leaderboard/{uid}
 import { collection, doc, getDocs, runTransaction, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase/firebase';
+import { auth, db } from '../firebase/firebase';
 import { ACHIEVEMENTS, FINAL_LEVEL_ID, LEVEL_BADGE } from '../config/gameConfig';
 
 export async function loadProgress(uid) {
@@ -13,6 +13,7 @@ export async function loadProgress(uid) {
 // SCORE POLICY: total score = sum of your BEST score on each level.
 // Replaying or restarting can never add the same points twice (only the improvement counts).
 export async function recordRun(uid, run) {
+  await auth.currentUser?.getIdToken(); // make sure the login token is fresh before saving (refreshes only if expired)
   const { levelId, result, score, hintsUsed, timeLeft, lives, seconds } = run;
   const userRef = doc(db, 'users', uid);
   const progRef = doc(db, 'users', uid, 'progress', String(levelId));

@@ -3,6 +3,8 @@ import { useAuth } from '../hooks/useAuth';
 import { ACHIEVEMENTS, AVATARS } from '../config/gameConfig';
 import { loadProgress } from '../services/progressService';
 import { updateProfileFields } from '../services/profileService';
+import { getTokenInfo } from '../services/authService';
+import { IDLE_MS, MAX_SESSION_MS } from '../config/sessionConfig';
 
 export default function Profile() {
   const { user, profile, refreshProfile } = useAuth();
@@ -11,6 +13,11 @@ export default function Profile() {
   const [msg, setMsg] = useState(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState({});
+  const [tok, setTok] = useState(null);
+  const [tokBusy, setTokBusy] = useState(false);
+  useEffect(() => { getTokenInfo().then(setTok).catch(() => {}); }, []);
+  // Event: "Refresh token" click - asks Firebase for a brand-new ID token.
+  const refreshToken = async () => { setTokBusy(true); try { setTok(await getTokenInfo(true)); } catch { /* ignore */ } setTokBusy(false); };
 
   useEffect(() => { loadProgress(user.uid).then(setProgress).catch(() => {}); }, [user.uid]);
 
@@ -46,6 +53,18 @@ export default function Profile() {
       <div className="row wrap">{AVATARS.map((a) => <button key={a} className={`avatar-pick ${avatar === a ? 'sel' : ''}`} onClick={() => setAvatar(a)}>{a}</button>)}</div>
       <button className="btn" disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Save changes'}</button>
       {msg && <p className={`msg ${msg.ok ? 'success' : 'error'}`}>{msg.text}</p>}
+
+      <h2>Session &amp; token</h2>
+      {tok ? (
+        <ul>
+          <li>Signed in since: {new Date(tok.signedInAt).toLocaleString()}</li>
+          <li>Token issued: {new Date(tok.issuedAt).toLocaleString()}</li>
+          <li>Token expires: {new Date(tok.expiresAt).toLocaleString()} (Firebase renews it automatically)</li>
+          <li>Sign-in method: {tok.provider}</li>
+          <li>Auto logout after {IDLE_MS / 60000} min of inactivity · max session {MAX_SESSION_MS / 3600000} h · one active device</li>
+        </ul>
+      ) : <p className="muted">Loading token details…</p>}
+      <button className="btn small ghost" disabled={tokBusy} onClick={refreshToken}>{tokBusy ? 'Refreshing…' : 'Refresh token'}</button>
 
       <h2>Level results</h2>
       {Object.keys(progress).length === 0 ? <p className="muted">No completed levels yet - go play!</p> : (

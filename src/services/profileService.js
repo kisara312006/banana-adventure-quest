@@ -8,7 +8,7 @@ export async function ensureProfile(user, fallbackName) {
   const snap = await getDoc(ref);
   if (snap.exists()) return snap.data();
   const profile = {
-        displayName: ((user.displayName || fallbackName || '').trim().slice(0, 20).length >= 2
+    displayName: ((user.displayName || fallbackName || '').trim().slice(0, 20).length >= 2
       ? (user.displayName || fallbackName).trim().slice(0, 20) : 'Banana Player'),
     email: user.email,
     avatar: '🍌',

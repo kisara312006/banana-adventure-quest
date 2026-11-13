@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { friendlyAuthError, loginWithGoogle, registerUser } from '../services/authService';
-import GoogleIcon from '../components/GoogleIcon';
 
 export default function Register() {
   const [f, setF] = useState({ name: '', email: '', password: '', confirm: '' });
@@ -41,10 +40,8 @@ export default function Register() {
       <label>Password<input className="input" type="password" value={f.password} onChange={set('password')} /></label>
       <label>Confirm password<input className="input" type="password" value={f.confirm} onChange={set('confirm')} onKeyDown={(e) => e.key === 'Enter' && submit()} /></label>
       {error && <p className="msg error">{error}</p>}
-      <div className="auth-actions">
-        <button className="btn big" disabled={busy} onClick={submit}>{busy ? 'Creating account…' : 'Register'}</button>
-        <button className="btn big ghost" disabled={busy} onClick={google}><GoogleIcon />Continue with Google</button>
-      </div>
+      <button className="btn big" disabled={busy} onClick={submit}>{busy ? 'Creating account…' : 'Register'}</button>
+      <button className="btn big ghost" disabled={busy} onClick={google}>Continue with Google</button>
       <p className="muted">Already registered? <Link to="/login">Login</Link></p>
     </section>
   );
