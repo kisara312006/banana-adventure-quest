@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { friendlyAuthError, loginUser, loginWithGoogle } from '../services/authService';
 import { clearNotice, peekNotice } from '../services/noticeService';
+import GoogleButton from '../components/GoogleButton';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -40,8 +41,8 @@ export default function Login() {
       <label><input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Remember me on this device</label>
       {error && <p className="msg error">{error}</p>}
       <button className="btn big" disabled={busy} onClick={submit}>{busy ? 'Logging in…' : 'Login'}</button>
-      <button className="btn big ghost" disabled={busy} onClick={google}>Continue with Google</button>
-      <p className="muted">New here? <Link to="/register">Create an account</Link></p>
+      <p className="divider">or</p>
+      <GoogleButton disabled={busy} onClick={google} />      <p className="muted">New here? <Link to="/register">Create an account</Link></p>
     </section>
   );
 }
