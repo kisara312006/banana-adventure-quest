@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import Leaderboard from './pages/Leaderboard';
 import Level from './pages/Level';
 import Completion from './pages/Completion';
+import Footer from './components/Footer';
 
 const guard = (el) => <ProtectedRoute>{el}</ProtectedRoute>;
 
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="*" element={<div className="card"><h1>404</h1><p>This jungle path does not exist.</p></div>} />
         </Routes>
       </main>
+      <Footer />
     </>
   );
 }
