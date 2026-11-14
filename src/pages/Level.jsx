@@ -39,6 +39,7 @@ function LevelRun({ level, onRestart }) {
   const [lives, setLives] = useState(level.lives);
   const [hintsLeft, setHintsLeft] = useState(level.maxHints);
   const [hintTick, setHintTick] = useState(0);
+  const [hintBanner, setHintBanner] = useState('');
   const [status, setStatus] = useState('playing'); // playing | won | lost
   const [reason, setReason] = useState('');
   const [breakdown, setBreakdown] = useState(null);
@@ -84,7 +85,15 @@ function LevelRun({ level, onRestart }) {
   const hintEarned = () => { // called once per completed challenge (guarded in HintModal)
     if (hintsRef.current <= 0) return;
     hintsRef.current -= 1; setHintsLeft(hintsRef.current); setHintTick((t) => t + 1);
+setHintBanner(level.hintText ?? 'Hint activated!');
   };
+
+  // Hide the banner after 5 seconds (timer is cleaned up automatically).
+useEffect(() => {
+  if (!hintBanner) return undefined;
+  const id = setTimeout(() => setHintBanner(''), 5000);
+  return () => clearTimeout(id);
+}, [hintBanner, hintTick]);
 
   const saveRun = async () => {
     setSave({ busy: true, error: '', result: null });
@@ -121,6 +130,8 @@ function LevelRun({ level, onRestart }) {
         <button className="btn" disabled={locked || hintsLeft === 0} onClick={() => setModal('hint')}>💡 Hint</button>
         <button className="btn ghost" disabled={!started || status !== 'playing' || !!modal} onClick={() => setModal('restart')}>↻ Restart</button>
       </div>
+
+      {hintBanner && status === 'playing' && <div key={hintTick} className="hint-banner">💡 {hintBanner}</div>}
 
       {!started && (
         <div className="card">
