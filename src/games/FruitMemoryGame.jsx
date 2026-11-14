@@ -24,8 +24,7 @@ export default function FruitMemoryGame({ stage, locked, hintTick, onCorrect, on
   useEffect(() => {
     if (hintTick === 0) return;
     setReveal(true);
-    later(() => setReveal(false), 2000);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+later(() => setReveal(false), (stage.revealSeconds ?? 2) * 1000);    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hintTick]);
 
   const flip = (card) => {
