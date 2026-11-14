@@ -86,3 +86,15 @@ label { display: block; margin: 10px 0; }
 @media (max-width: 600px) { .profile-strip { flex-direction: column; text-align: center; } }
 
 .card:hover { box-shadow: 0 10px 32px rgba(0,0,0,.5), 0 0 24px rgba(212,175,55,.18); }
+
+/* Login/Register: every button the same width, stacked with equal spacing */
+.auth .btn.big, .google-btn { display: block; width: 100%; margin-top: 12px; text-align: center; }
+.divider { text-align: center; color: var(--muted); margin: 14px 0 0; }
+.google-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font: inherit; font-weight: 600; font-size: 1.15rem; cursor: pointer;
+  padding: 14px 30px; border-radius: 999px; background: #fff; color: #3c4043;
+  border: 2px solid var(--gold); transition: transform .12s, filter .12s;
+}
+.google-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(.97); }
+.google-btn:disabled { opacity: .5; cursor: not-allowed; }
