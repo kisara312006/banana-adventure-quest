@@ -20,7 +20,7 @@ Welcome, register/login/logout, dashboard with progress, 4 levels + final challe
 
 Hint numbers are **per attempt** (shown in the UI). All numbers live in `src/config/gameConfig.js` (`hintPuzzles` = Banana API puzzles needed for one hint).
 
-**Hint rules:** Hint button → timer pauses → rules screen → solve N real Banana API puzzles in a row (N = 1, 2 or 3 depending on the level) → a `useRef` guard stops double awards → a wrong answer shows feedback and fetches a new puzzle for that question (unlimited retries; solved puzzles are kept) → Cancel = no hint. If the API is down you see an error + Retry and no hint is given. Hint effects: L1 fades out 3 wrong cells, L2 explains the rule then crosses out wrong choices, Final shows every card face-up for 2 seconds.
+**Hint rules:** Hint button → timer pauses → rules screen → solve N real Banana API puzzles in a row (N = 1, 2 or 3 depending on the level) → a `useRef` guard stops double awards → a wrong answer shows feedback and fetches a new puzzle for that question (unlimited retries; solved puzzles are kept) → Cancel = no hint. If the API is down you see an error + Retry and no hint is given. Hint effects: L1 fades out 3 wrong cells, L2 explains the rule then crosses out wrong choices, Final shows every card face-up for 4 seconds.
 
 **Restart:** confirmation dialog → the level component is re-mounted (new key), so timer, lives, run score and hints reset and no duplicate intervals exist. Saved best scores/achievements are untouched.
 
