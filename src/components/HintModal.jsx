@@ -27,7 +27,7 @@ export default function HintModal({ onEarned, onClose, puzzles = 2 }) {
     if (earned.current || !puzzle || loading || answer.trim() === '') return;
     if (checkAnswer(puzzle, answer)) {
       if (index < puzzles - 1) { setFeedback({ ok: true, text: 'Correct! Next puzzle…' }); setIndex(index + 1); load(); }
-      else { earned.current = true; onEarned(); setStep('done'); }
+      else { earned.current = true; onEarned(); onClose(); } // hint earned: close at once
     } else {
       setFeedback({ ok: false, text: 'Not quite - here is a new puzzle for this question.' });
       load(); // retry rule: unlimited retries, progress on correct puzzles is kept
@@ -64,12 +64,7 @@ export default function HintModal({ onEarned, onClose, puzzles = 2 }) {
             <button className="btn ghost small" onClick={onClose}>Cancel (no hint)</button>
           </>
         )}
-        {step === 'done' && (
-          <>
-            <p className="msg success">Hint earned! 🎉 It will appear in the game.</p>
-            <button className="btn" onClick={onClose}>Back to the game</button>
-          </>
-        )}
+        
       </div>
     </div>
   );
