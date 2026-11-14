@@ -16,7 +16,7 @@ Welcome, register/login/logout, dashboard with progress, 4 levels + final challe
 |---|---|---|---|---|---|
 | 1 Banana Jungle | Odd-one-out (6 rounds) | 1:30 | 2 | 2 | 1 |
 | 2 Orange River | Hard fruit patterns (4 rounds, 5 choices, 4 pattern types) | 1:00 | 2 | 2 | 2 |
-| Final: Apple Forest | Memory match, **16 cards** (8 pairs); wrong pair = −1 life | 1:30 | 4 | 2 | 3 |
+| Final: Apple Forest | Memory match, **16 cards** (8 pairs); wrong pair = −1 life | 1:30 | 8 | 2 | 3 |
 
 Hint numbers are **per attempt** (shown in the UI). All numbers live in `src/config/gameConfig.js` (`hintPuzzles` = Banana API puzzles needed for one hint).
 
