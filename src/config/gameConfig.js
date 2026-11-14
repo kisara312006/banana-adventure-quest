@@ -38,9 +38,9 @@ export const LEVELS = {
     stages: [{ game: 'sequence', goal: 4, points: 120, choices: 5, maxPeriod: 5, hard: true }],
   },
   3: {
-    id: 3, name: 'Apple Forest (Final Level)', emoji: '🍎', theme: 'forest', seconds: 90, lives: 4, maxHints: 2, hintPuzzles: 3,
+    id: 3, name: 'Apple Forest (Final Level)', emoji: '🍎', theme: 'forest', seconds: 90, lives: 8, maxHints: 2, hintPuzzles: 3,
     description: 'The final test: match all 8 pairs among 16 cards.',
-    rules: ['Flip two cards at a time and find all 8 matching pairs (16 cards).', 'Each match = 80 points.', 'A wrong pair costs 1 life (4 lives).', 'Timer: 1:30. A hint shows every card for 2 seconds.'],
+    rules: ['Flip two cards at a time and find all 8 matching pairs (16 cards).', 'Each match = 80 points.', 'A wrong pair costs 1 life (8 lives).', 'Timer: 1:30. A hint shows every card for 2 seconds.'],
     stages: [{ game: 'memory', pairs: 8, points: 80, loseLife: true }],
   },
 };
