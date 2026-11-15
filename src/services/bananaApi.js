@@ -1,12 +1,6 @@
 // Banana API service - the ONLY file that talks to the external puzzle API.
 // Docs: https://marcconrad.com/uob/banana/doc.php
-//
-// !! VERIFY AGAINST THE DOCS !!  The docs page blocked automated access while this
-// project was generated, so this contract is written from the AI's recollection of
-// the API, NOT from reading the page:
-//   GET https://marcconrad.com/uob/banana/api.php
-//   -> JSON { "question": "<image URL>", "solution": <digit 0-9> }
-// If the real documentation differs, change ONLY API_URL and fetchPuzzle() below.
+
 const API_URL = 'https://marcconrad.com/uob/banana/api.php';
 const TIMEOUT_MS = 10000;
 
